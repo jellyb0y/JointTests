@@ -45,8 +45,6 @@ if (document.querySelector('form')) {
       isEmptyAnswers = false;
     });
 
-    console.log(equalAnswers);
-
     if (isEmptyAnswers) {
       hintBody.style.display = 'none';
       return;
@@ -68,7 +66,9 @@ if (document.querySelector('form')) {
             text = item
           } else {
             const label = question.controls[item];
-            text = label.querySelector('.exportLabel').innerText;
+            if (label) {
+              text = label.querySelector('.exportLabel').innerText;
+            }
           }
           
           return `<span>${text}</span>`;
