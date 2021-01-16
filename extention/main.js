@@ -158,6 +158,7 @@ socket.onmessage = ({ data: json }) => {
       updateHints(qID);
     });
   } else if (data.qID) {
+    const qID = data.qID;
     if (typeof questions[qID] === 'object') {
       questions[qID].otherAnswers = data.answers;
       updateHints(qID);
