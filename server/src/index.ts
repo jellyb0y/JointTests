@@ -20,7 +20,6 @@ wss.on('connection', (ws: WebSocket) =>
     ws.send(JSON.stringify({ fullData: session.data } as ISyncDataMessage));
 
     ws.on('message', (json: string) => {
-      console.log(json);
       const { qID, answer }: IIncomingMessageData = JSON.parse(json);
       session.updateData(qID, answer);
     });
