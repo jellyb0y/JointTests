@@ -2,6 +2,7 @@ export interface IStorage {
   [key: string]: {
     data: ISession['data'],
     callbacks: IUserList<ICallback>;
+    countSessions: number;
   };  
 }
 

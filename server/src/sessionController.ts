@@ -1,21 +1,30 @@
 import WebSocket from 'ws';
 import md5 from 'md5';
 import { IAnswer, IAuthMessage, ISession, IStorage } from '@types';
-import { SESSION_TIMEOUT, SERVER_SECRET } from '@constants';
+import { SESSION_TIMEOUT, SERVER_SECRET, MAX_SESSIONS } from '@constants';
 
 export const sessions: IStorage = {};
 
-export const getSession = (hash: string, userID: string): ISession => {
+export const getSession = (hash: string, userID: string): ISession | undefined => {
   const {
     data = {},
-    callbacks = {}
+    callbacks = {},
+    countSessions = 0
   } = sessions[hash] || {};
+
+  if (countSessions > MAX_SESSIONS) {
+    return;
+  }
   
   if (!(hash in sessions)) {
-    sessions[hash] = { data, callbacks };
+    sessions[hash] = { countSessions, data, callbacks };
   }
 
   const createOnUpdate = (callback): void => {
+    if (!(userID in callbacks)) {
+      sessions[hash].countSessions += 1;
+    }
+
     callbacks[userID] = callback;
   };
 
@@ -56,7 +65,13 @@ const sessionController = (ws: WebSocket): Promise<ISession> =>
       if (!hash) {
         reject();
       } else {
-        resolve(getSession(hash, userID));
+        const session = getSession(hash, userID);
+
+        if (!session) {
+          reject();
+        } else {
+          resolve(session);
+        }
       }
 
       ws.removeListener('message', callback)

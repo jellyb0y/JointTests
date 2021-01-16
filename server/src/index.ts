@@ -17,5 +17,5 @@ wss.on('connection', (ws: WebSocket) =>
 
     session.createOnUpdate((qID, answers) =>
       ws.send(JSON.stringify({ qID, answers } as IOutcommingMessageData)));
-  })
+  }).catch(() => ws.close())
 );

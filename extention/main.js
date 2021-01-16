@@ -82,6 +82,5 @@ socket.onmessage = ({ data: json }) => {
     localStorage.setItem('userID', data.userID);
   } else if (data.qID) {
     questions[qID] = data.answers;
-    console.log(questions);
   }
 };
