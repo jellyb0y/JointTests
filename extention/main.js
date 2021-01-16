@@ -1,48 +1,69 @@
 (function () {
   if (document.querySelector('form')) {
-    const socket = new WebSocket('wss://joint-tests.xyz:4433');
+    const socket = new WebSocket('wss://joint-tests.xyz:8080');
     const questions = {};
     const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
     const userID = localStorage.getItem('userID');
-  
-    const trackAction = (qID, answer) => {
-      questions[qID].answer = answer;
-      if (socket.readyState) {
-        sendMessage({ qID, answer });
+
+    let queueToSend = {};
+    let isReadyToSend = true;
+    const sendMessage = (qID, data) => {
+      queueToSend[qID] = {
+        ...queueToSend[qID],
+        ...data
+      };
+
+      if (isReadyToSend) {
+        if (socket.readyState) {
+          socket.send(JSON.stringify(queueToSend));
+          queueToSend = {};
+        }
+        isReadyToSend = false;
       }
+
+      setTimeout(() => isReadyToSend = true, 1000);
+    };
+  
+    const sendAnswer = (qID, answer) => {
+      questions[qID].answer = answer;
+      sendMessage(qID, { answer });
     }
+
+    const sendQuestionStatus = (qID, status) => {
+      sendMessage(qID, { isActive: status });
+    };
 
     const onProgressButtonClick = (qID) => {
       const question = questions[qID];
-      const progressButton = question.progressButton;
-      const state = +!+progressButton.dataset.active;
-      progressButton.dataset.active = state;
+      const newState = !question.usersInProgress.includes(userID);
 
-      if (state) {
+      if (newState) {
         if (!question.usersInProgress.includes(userID)) {
           question.usersInProgress.push(userID);
         }
-        progressButton.innerText = 'Завершить решение задачи';
       } else {
         question.usersInProgress = question.usersInProgress.filter(value => value && value !== userID);
-        progressButton.innerText = 'Решать задачу';
       }
 
       updateQuestionProgress(qID);
+      sendQuestionStatus(qID, newState);
     };
 
     const updateQuestionProgress = (qID) => {
       const question = questions[qID];
       const usersInProgress = question.usersInProgress;
       const text = question.progressText;
+      const progressButton = question.progressButton;
 
       if (usersInProgress.includes(userID)) {
         text.innerText = 'Эту задачу решаете вы';
+        progressButton.innerText = 'Завершить решение задачи';
         const countUsers = usersInProgress.length - 1;
         if (countUsers) {
           text.innerText += ` и ещё ${countUsers} пользователей`;
         }
       } else {
+        progressButton.innerText = 'Решать задачу';
         const countUsers = usersInProgress.length;
         if (countUsers) {
           text.innerText = `Эту задачу решает ${countUsers} пользователей`;
@@ -121,7 +142,7 @@
     };
 
     const updateForm = (questionsToDispatch) => {
-      questionsToDispatch.forEach(qID => {
+      (questionsToDispatch || Object.keys(questions)).forEach(qID => {
         updateHints(qID);
         updateQuestionProgress(qID);
       });
@@ -151,7 +172,7 @@
         const input = target.querySelector('input');
         controls['input'] = input;
         answer = [input.value];
-        input.addEventListener('change', () => trackAction(id, [input.value]));
+        input.addEventListener('change', () => sendAnswer(id, [input.value]));
       } else if (target.querySelector('.freebirdFormviewerComponentsQuestionRadioRoot')) {
         type = 'radio';
         Array.from(target.querySelectorAll('label')).forEach((item, labelID) => {
@@ -161,14 +182,14 @@
           }
           item.addEventListener('click', () => setTimeout(() => {
             if (checkRadioClick(item)) {
-              trackAction(id, [labelID]);
+              sendAnswer(id, [labelID]);
             } else {
-              trackAction(id, []);
+              sendAnswer(id, []);
             }        
           }, 100));
         });
         target.querySelector('.appsMaterialWizButtonPaperbuttonLabel')
-          .addEventListener('click', () => trackAction(id, []));
+          .addEventListener('click', () => sendAnswer(id, []));
       } else if (target.querySelector('.freebirdFormviewerComponentsQuestionCheckboxRoot')) {
         type = 'checkbox';
         Array.from(target.querySelectorAll('label')).forEach((item, labelID) => {
@@ -185,7 +206,7 @@
             } else {
               newanswer = newanswer.filter(value => value && value !== labelID);
             }
-            trackAction(id, newanswer);
+            sendAnswer(id, newanswer);
           }, 100));
         });
       }
@@ -202,11 +223,11 @@
       };
     });
   
-    const sendMessage = (object) => socket.send(JSON.stringify(object));
-  
     socket.onopen = () => {
       const hrefHash = btoa(window.location.href);
-      sendMessage({ hash: hrefHash, userID: userID });
+      if (socket.readyState) {
+        socket.send(JSON.stringify({ hash: hrefHash, userID: userID }));
+      }
     };
   
     socket.onmessage = ({ data: json }) => {
