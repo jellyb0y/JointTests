@@ -1,4 +1,4 @@
-const socket = new WebSocket('ws://localhost:8080');
+const socket = new WebSocket('ws://5.253.61.241:8080');
 const questions = {};
 const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
 
