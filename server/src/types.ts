@@ -36,3 +36,7 @@ export interface IOutcommingMessageData {
   qID: number;
   answers: IUserList<IAnswer>;
 }
+
+export interface ISyncDataMessage {
+  fullData: ISession['data'];
+}

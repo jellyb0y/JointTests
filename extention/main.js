@@ -1,10 +1,13 @@
-const socket = new WebSocket('wss://5.253.61.241:4433');
+const socket = new WebSocket('ws://localhost:4433');
 const questions = {};
 const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
 
+
 const trackAction = (qID, answer) => {
   questions[qID].answer = answer;
-  sendMessage({ qID, answer });
+  if (readyState) {
+    sendMessage({ qID, answer });
+  }
 }
 
 const checkRadioClick = (item) => (Array.from(item.classList).includes('isChecked'));
@@ -149,6 +152,10 @@ socket.onmessage = ({ data: json }) => {
   
   if (data.userID) {
     localStorage.setItem('userID', data.userID);
+  } else if (data.fullData) {
+    Object.entries(data.fullData).forEach(
+      ([qID, answers]) => questions[qID].otherAnswers = answers
+    );
   } else if (data.qID) {
     if (typeof questions[qID] === 'object') {
       questions[qID].otherAnswers = data.answers;
