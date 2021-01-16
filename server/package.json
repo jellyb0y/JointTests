@@ -1,0 +1,49 @@
+{
+  "name": "joint-tests",
+  "scripts": {
+    "transpile": "tsc && ef-tspm",
+    "start": "npm run transpile && node --enable-source-maps dist/index.js",
+    "lint": "lint-staged"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jellyb0y/JointTests.git"
+  },
+  "author": "Vitaly Kisel <https://github.com/jellyb0y>",
+  "maintainers": [
+    "Vitaly Kisel <https://github.com/jellyb0y>"
+  ],
+  "dependencies": {
+    "md5": "^2.3.0",
+    "ws": "^7.4.2"
+  },
+  "devDependencies": {
+    "@ef-carbon/tspm": "^2.2.5",
+    "@types/ws": "^7.4.0",
+    "husky": "^3.0.5",
+    "lint-staged": "^9.2.5",
+    "prettier": "^1.18.2",
+    "stylelint": "^10.1.0",
+    "stylelint-config-prettier": "^5.2.0",
+    "stylelint-config-recommended": "^2.2.0",
+    "stylelint-config-standard": "^18.3.0",
+    "stylelint-order": "^3.1.0",
+    "tslint": "^5.20.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "2.3.0",
+    "typescript": "4.0.3"
+  },
+  "lint-staged": {
+    "*.{ts}": [
+      "tslint --fix",
+      "prettier --write",
+      "git add *.ts"
+    ],
+    "*.{js,json}": [
+      "prettier --write",
+      "git add *.js",
+      "git add *.json"
+    ]
+  }
+}
