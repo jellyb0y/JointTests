@@ -1,9 +1,19 @@
 import WebSocket from 'ws';
+import https from 'https';
+import fs from 'fs';
 import sessionController from './sessionController';
-import { WSS_PORT } from '@constants';
+import { WSS_PORT, SSL_KEY_PATH, SSL_CERT_PATH } from '@constants';
 import { IIncomingMessageData, IOutcommingMessageData, ISession } from '@types';
 
-const wss = new WebSocket.Server({ port: WSS_PORT });
+var options = {
+  key: fs.readFileSync(SSL_KEY_PATH),
+  cert: fs.readFileSync(SSL_CERT_PATH)
+};
+
+const wss = new WebSocket.Server({
+  server: https.createServer(options)
+    .listen(WSS_PORT, () => console.log(`Server [WSS] on *:${WSS_PORT}`))
+});
 
 wss.on('connection', (ws: WebSocket) =>
   sessionController(ws).then((session: ISession) => {

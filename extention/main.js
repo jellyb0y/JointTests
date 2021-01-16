@@ -1,4 +1,4 @@
-const socket = new WebSocket('ws://5.253.61.241:8080');
+const socket = new WebSocket('wss://5.253.61.241:4433');
 const questions = {};
 const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
 
@@ -8,6 +8,72 @@ const trackAction = (qID, answer) => {
 }
 
 const checkRadioClick = (item) => (Array.from(item.classList).includes('isChecked'));
+
+const updateHints = (qID) => {
+  const question = questions[qID];
+  const answers = question.otherAnswers;
+  const target = question.target;
+
+  let hintBody = question.hintBody;
+  if (!hintBody) {
+    hintBody = document.createElement('div');
+    hintBody.classList.add('hintBody');
+    question.hintBody = hintBody;
+    target.querySelector('.freebirdFormviewerComponentsQuestionBaseRoot').appendChild(hintBody);
+  }
+
+  let isEmptyAnswers = true;
+  const equalAnswers = {};
+  Object.entries(answers).forEach(([userID, answer]) => {
+    if (
+      userID === localStorage.getItem('userID') ||
+      !answer.length
+    ) {
+      return;
+    }
+
+    answerString = JSON.stringify(answer.sort());
+    if (!equalAnswers[answerString]) {
+      equalAnswers[answerString] = 1;
+    } else {
+      equalAnswers[answerString] += 1;
+    }
+
+    isEmptyAnswers = false;
+  });
+
+  console.log(equalAnswers);
+
+  if (isEmptyAnswers) {
+    hintBody.style.display = 'none';
+    return;
+  }
+  
+  hintBody.style.display = 'block';
+  hintBody.innerHTML = Object.entries(equalAnswers)
+    .map(([jsonAnswer, count]) => {
+      const answer = JSON.parse(jsonAnswer);
+      let plural = '';
+
+      if (answer.length > 1) {
+        plural = 'ы';
+      }
+
+      answerLine = answer.map(item => {
+        let text;
+        if (question.type === 'text') {
+          text = item
+        } else {
+          const label = question.controls[item];
+          text = label.querySelector('.exportLabel').innerText;
+        }
+        
+        return `<span>${text}</span>`;
+      }).join(', ');
+
+      return `${count} пользователей считают правильным ответ${plural}: ${answerLine}`;
+    }).join('<br/>');
+};
 
 containers.forEach((item) => {
   const target = item.firstChild;
@@ -31,8 +97,11 @@ containers.forEach((item) => {
         answer = [labelID];
       }
       item.addEventListener('click', () => setTimeout(() => {
-        const newAnswer = checkRadioClick(item) ? labelID : null;
-        trackAction(id, [newAnswer]);
+        if (checkRadioClick(item)) {
+          trackAction(id, [labelID]);
+        } else {
+          trackAction(id, []);
+        }        
       }, 100));
     });
     target.querySelector('.appsMaterialWizButtonPaperbuttonLabel')
@@ -52,7 +121,7 @@ containers.forEach((item) => {
             newanswer.push(labelID);
           }
         } else {
-          newanswer = newanswer.filter(value => value !== labelID);
+          newanswer = newanswer.filter(value => value && value !== labelID);
         }
         trackAction(id, newanswer);
       }, 100));
@@ -60,7 +129,7 @@ containers.forEach((item) => {
   }
 
   questions[id] = {
-    block: target,
+    target,
     type,
     controls,
     answer
@@ -81,6 +150,9 @@ socket.onmessage = ({ data: json }) => {
   if (data.userID) {
     localStorage.setItem('userID', data.userID);
   } else if (data.qID) {
-    questions[qID] = data.answers;
+    if (typeof questions[qID] === 'object') {
+      questions[qID].otherAnswers = data.answers;
+      updateHints(qID);
+    }
   }
 };
