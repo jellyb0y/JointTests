@@ -1,42 +1,33 @@
-export interface IStorage {
-  [key: string]: {
-    data: ISession['data'],
-    callbacks: IUserList<ICallback>;
-    countSessions: number;
-  };  
+import { ISession } from './sessionController/sessionController.types';
+ 
+export type IAnswer = string[];
+
+export interface IDataItem {
+  answers: IUserList<IAnswer>;
+  activeUsers: string[];
 }
 
-export interface ISession {
-  data: {
-    [qID: number]: IUserList<IAnswer>;
-  };
-  createOnUpdate: (callback: ICallback) => void;
-  updateData: (qID: number, answer: IAnswer) => void;
+export interface IQuestionData {
+  qID: number;
+  answer: IAnswer;
+  isActive: boolean;
 }
 
-export type IAnswer = string[]; 
+export interface IIncomingData {
+  [qID: number]: Pick<IQuestionData, 'answer' | 'isActive'>;
+}
 
 export type IUserList<R> = {
   [user: string]: R;
 }
 
-export type ICallback = (qID: number, answers: IUserList<IAnswer>) => void;
+export type ICallback = (data: ISession['data'], updatedQuestions: number[]) => void;
 
 export interface IAuthMessage {
   hash: string;
   userID: string;
 }
 
-export interface IIncomingMessageData {
-  qID: number;
-  answer: IAnswer;
-}
-
-export interface IOutcommingMessageData {
-  qID: number;
-  answers: IUserList<IAnswer>;
-}
-
 export interface ISyncDataMessage {
-  fullData: ISession['data'];
+  data: ISession['data'];
 }

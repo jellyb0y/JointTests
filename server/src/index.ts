@@ -3,7 +3,8 @@ import https from 'https';
 import fs from 'fs';
 import sessionController from './sessionController';
 import { WSS_PORT, SSL_KEY_PATH, SSL_CERT_PATH } from '@constants';
-import { IIncomingMessageData, IOutcommingMessageData, ISyncDataMessage, ISession } from '@types';
+import { IIncomingData, ISyncDataMessage } from '@types';
+import { ISession } from './sessionController/sessionController.types';
 
 var options = {
   key: fs.readFileSync(SSL_KEY_PATH),
@@ -17,14 +18,15 @@ const wss = new WebSocket.Server({
 
 wss.on('connection', (ws: WebSocket) =>
   sessionController(ws).then((session: ISession) => {
-    ws.send(JSON.stringify({ fullData: session.data } as ISyncDataMessage));
+    ws.send(JSON.stringify({ data: session.data } as ISyncDataMessage));
 
     ws.on('message', (json: string) => {
-      const { qID, answer }: IIncomingMessageData = JSON.parse(json);
-      session.updateData(qID, answer);
+      const incomingData: IIncomingData = JSON.parse(json);
+      Object.entries(incomingData).forEach(([qID, data]) => session.updateData({ qID, ...data }));
     });
 
-    session.createOnUpdate((qID, answers) =>
-      ws.send(JSON.stringify({ qID, answers } as IOutcommingMessageData)));
+    session.createOnUpdate((data, questionsToDispatch) =>
+      ws.send(JSON.stringify({ data, questionsToDispatch }))
+    );
   }).catch(() => ws.close())
 );
