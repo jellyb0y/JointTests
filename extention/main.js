@@ -93,8 +93,7 @@ containers.forEach((item) => {
     input.addEventListener('change', () => trackAction(id, [input.value]));
   } else if (target.querySelector('.freebirdFormviewerComponentsQuestionRadioRoot')) {
     type = 'radio';
-    Array.from(target.querySelectorAll('label')).forEach(item => {
-      const labelID = item.getAttribute('for');
+    Array.from(target.querySelectorAll('label')).forEach((item, labelID) => {
       controls[labelID] = item;
       if (!answer && checkRadioClick(item)) {
         answer = [labelID];
@@ -111,8 +110,7 @@ containers.forEach((item) => {
       .addEventListener('click', () => trackAction(id, []));
   } else if (target.querySelector('.freebirdFormviewerComponentsQuestionCheckboxRoot')) {
     type = 'checkbox';
-    Array.from(target.querySelectorAll('label')).forEach(item => {
-      const labelID = item.getAttribute('for');
+    Array.from(target.querySelectorAll('label')).forEach((item, labelID) => {
       controls[labelID] = item;
       if (checkRadioClick(item)) {
         answer.push(labelID);
