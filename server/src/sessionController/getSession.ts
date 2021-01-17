@@ -1,10 +1,11 @@
 import { IQuestionData } from '@types';
-import { MAX_SESSIONS, CALLBACK_DEBOUNCE_TIME } from '@constants';
+import { MAX_SESSIONS, MAX_CONNECTIONS, CALLBACK_DEBOUNCE_TIME } from '@constants';
 import { sessions } from './sessionController';
 import * as T from './sessionController.types';
 
 let timeoutToSend: NodeJS.Timeout;
 let isPending: boolean;
+let countSessions = 0;
 
 export const dispatchCallbacks = ({
   callbacks,
@@ -44,17 +45,22 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
     data = {},
     callbacks = {},
     questionsToDispatch = [],
-    countSessions = 0
+    countConnections = 0
   } = session || {};
 
   
   if (!(hash in sessions)) {
     session = sessions[hash] = {
-      countSessions,
+      countConnections,
       data,
       callbacks,
       questionsToDispatch
     };
+    countSessions += 1;
+  }
+
+  if (countSessions > MAX_SESSIONS - 1) {
+    return;
   }
 
   const callCallbacksDispatcher = () => {
@@ -69,13 +75,13 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
 
   const createOnUpdate = (callback): void => {
     if (!(userID in callbacks)) {
-      session.countSessions += 1;
+      session.countConnections += 1;
     }
 
     callbacks[userID] = callback;
   };
 
-  if (countSessions > MAX_SESSIONS - 1) {
+  if (countConnections > MAX_CONNECTIONS - 1) {
     return;
   }
 

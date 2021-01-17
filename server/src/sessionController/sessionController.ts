@@ -17,7 +17,7 @@ export const sessionController = (ws: WebSocket): Promise<T.ISession> =>
       let { hash, userID }: IAuthMessage = JSON.parse(json);
 
       if (!userID) { 
-        userID = md5(`${SERVER_SECRET}:${userIndex}:${Math.random() * Date.now()}`);
+        userID = md5(`${SERVER_SECRET}:${userIndex++}:${Math.random() * Date.now()}`);
         ws.send(JSON.stringify({ userID }));
       }
 

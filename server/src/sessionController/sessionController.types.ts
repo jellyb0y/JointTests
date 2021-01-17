@@ -5,7 +5,7 @@ export interface IStorage {
 }
 
 export interface IStorageItem extends Pick<IDispatcherData, 'data' | 'callbacks' | 'questionsToDispatch'> {
-  countSessions: number;
+  countConnections: number;
 }
 
 export interface ISession {
