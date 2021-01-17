@@ -87,20 +87,6 @@
       const equalAnswers = {};
       Object.entries(answers).forEach(([curUserID, answer]) => {
         if (userID === curUserID) {
-          answer.forEach(value => {
-            let control;
-            if (question.type === 'text') {
-              /* control = question.controls['input'];
-              control.value = value;
-              control.dispatchEvent(new Event('propertychange')); */
-            } else {
-              control = question.controls[value];
-              if (!checkRadioClick(question.controls[value])) {
-                question.controls[value].click();
-              }
-            }
-          });
-
           return;
         }
 
