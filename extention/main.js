@@ -43,6 +43,10 @@
 
     const onProgressButtonClick = (qID) => {
       const question = questions[qID];
+      if (!question || !question.target) {
+        return;
+      }
+
       const newState = !question.usersInProgress.includes(userID);
 
       if (newState) {
@@ -59,6 +63,10 @@
 
     const updateQuestionProgress = (qID) => {
       const question = questions[qID];
+      if (!question || !question.target) {
+        return;
+      }
+
       const usersInProgress = question.usersInProgress;
       const text = question.progressText;
       const progressButton = question.progressButton;
@@ -85,6 +93,10 @@
   
     const updateHints = (qID) => {
       const question = questions[qID];
+      if (!question || !question.target) {
+        return;
+      }
+
       const answers = question.otherAnswers;
       const target = question.target;
   
@@ -99,10 +111,23 @@
       let isEmptyAnswers = true;
       const equalAnswers = {};
       Object.entries(answers).forEach(([userID, answer]) => {
-        if (
-          userID === localStorage.getItem('userID') ||
-          !answer.length
-        ) {
+        if (userID === localStorage.getItem('userID')) {
+          answer.forEach(value => {
+            let control;
+            if (question.type === 'text') {
+              /* control = question.controls['input'];
+              control.value = value;
+              control.dispatchEvent(new Event('propertychange')); */
+            } else {
+              control = question.controls[value];
+              if (!checkRadioClick(question.controls[value])) {
+                question.controls[value].click();
+              }
+            }
+          })
+        }
+
+        if (!answer.length) {
           return;
         }
   
@@ -261,5 +286,7 @@
         });
       }
     };
+
+    socket.onerror = () => alert('Не удалось подключиться к серверу :(');
   }
 })();
