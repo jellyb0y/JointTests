@@ -21,6 +21,7 @@ export const dispatchCallbacks = ({
       callback(data, questionsToDispatch);
     });
 
+    isPending = false;
     timeoutToSend = setTimeout(() => {
       timeoutToSend = null;
       if (isPending) {
