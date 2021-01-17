@@ -158,7 +158,13 @@
   
     containers.forEach((item) => {
       const target = item.firstChild;
-      const id = target.dataset.params.match(/%\.@\.\[(\d+)/)[1];
+      const params = target.dataset.params;
+
+      if (!params) {
+        return;
+      }
+
+      const id = params.match(/%\.@\.\[(\d+)/)[1];
       let type;
       let controls = {};
       let answer = [];
