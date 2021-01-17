@@ -62,14 +62,18 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
 
     questionsToDispatch.push(qID);
     
-    data[qID].answers[userID] = answer;
+    if (answer !== undefined) {
+      data[qID].answers[userID] = answer;
+    }
 
-    if (isActive) {
-      if (!data[qID].activeUsers.includes(userID)) {
-        data[qID].activeUsers.push(userID);
+    if (isActive !== undefined) {
+      if (isActive) {
+        if (!data[qID].activeUsers.includes(userID)) {
+          data[qID].activeUsers.push(userID);
+        }
+      } else {
+        data[qID].activeUsers = data[qID].activeUsers.filter(value => value && value !== userID);
       }
-    } else {
-      data[qID].activeUsers = data[qID].activeUsers.filter(value => value && value !== userID);
     }
 
     callCallbacksDispatcher();
