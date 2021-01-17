@@ -1,25 +1,37 @@
 import { IQuestionData } from '@types';
 import { MAX_SESSIONS, CALLBACK_DEBOUNCE_TIME } from '@constants';
-import debounce from 'debounce';
 import { sessions } from './sessionController';
 import * as T from './sessionController.types';
 
-export const dispatchCallbacks = debounce(({
+let timeoutToSend: NodeJS.Timeout;
+export const dispatchCallbacks = ({
   callbacks,
   data,
   userID,
   questionsToDispatch
-}: T.IDispatcherData) =>
-  Object.entries(callbacks).forEach(([user, callback]) => {
-    if (user === userID) {
-      return;
-    }
+}: T.IDispatcherData) => {
+  const task = (): void => {
+    Object.entries(callbacks).forEach(([user, callback]) => {
+      if (user === userID) {
+        return;
+      }
+  
+      callback(data, questionsToDispatch);
+    });
+  };
 
-    callback(data, questionsToDispatch);
-  }),
-  CALLBACK_DEBOUNCE_TIME,
-  true
-);
+  if (!timeoutToSend) {
+    task();
+  } else {
+    clearTimeout(timeoutToSend);
+  }
+
+  timeoutToSend = setTimeout(() => {
+    timeoutToSend = null;
+    task();
+  }, CALLBACK_DEBOUNCE_TIME);
+}
+  
 
 export const getSession = (hash: string, userID: string): T.ISession | undefined => {
   const {

@@ -14,7 +14,6 @@
     "Vitaly Kisel <https://github.com/jellyb0y>"
   ],
   "dependencies": {
-    "debounce": "^1.2.0",
     "md5": "^2.3.0",
     "ws": "^7.4.2"
   },
