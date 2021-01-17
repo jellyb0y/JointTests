@@ -29,7 +29,7 @@ wss.on('connection', (ws: WebSocket) =>
       ws.send(JSON.stringify({ data, questionsToDispatch }))
     );
   }).catch((specialMessage: string) => {
-    ws.send(JSON.stringify({ error: `could not create session\n${specialMessage || ''}` }));
+    ws.send(JSON.stringify({ error: specialMessage || 'could not create session' }));
     ws.close()
   })
 );
