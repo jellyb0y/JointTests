@@ -17,7 +17,7 @@ export const sessionController = (ws: WebSocket): Promise<T.ISession> =>
       let { hash, userID, ver }: IAuthMessage = JSON.parse(json);
 
       if (ver !== ACTUAL_EXTENTION_VER) {
-        reject('your extention version is not actual');
+        reject('\nВам необходимо обновить расширение');
       }
 
       if (!userID) { 
