@@ -18,7 +18,6 @@ const wss = new WebSocket.Server({
 
 wss.on('connection', (ws: WebSocket) =>
   sessionController(ws).then((session: ISession) => {
-    console.log(session);
     ws.send(JSON.stringify({ data: session.data } as ISyncDataMessage));
 
     ws.on('message', (json: string) => {
