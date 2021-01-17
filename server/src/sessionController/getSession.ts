@@ -4,6 +4,7 @@ import { sessions } from './sessionController';
 import * as T from './sessionController.types';
 
 let timeoutToSend: NodeJS.Timeout;
+
 export const dispatchCallbacks = ({
   callbacks,
   data,
@@ -22,16 +23,17 @@ export const dispatchCallbacks = ({
 
   if (!timeoutToSend) {
     task();
+    timeoutToSend = setTimeout(() => {
+      timeoutToSend = null;
+    }, CALLBACK_DEBOUNCE_TIME);
   } else {
     clearTimeout(timeoutToSend);
+    timeoutToSend = setTimeout(() => {
+      timeoutToSend = null;
+      task();
+    }, CALLBACK_DEBOUNCE_TIME);
   }
-
-  timeoutToSend = setTimeout(() => {
-    timeoutToSend = null;
-    task();
-  }, CALLBACK_DEBOUNCE_TIME);
-}
-  
+}  
 
 export const getSession = (hash: string, userID: string): T.ISession | undefined => {
   let session: T.IStorageItem = sessions[hash];
