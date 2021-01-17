@@ -1,7 +1,7 @@
 version: "3.3"
 
 services:
-  frontend:
+  server:
     build: ./server
     restart: unless-stopped
     ports:
