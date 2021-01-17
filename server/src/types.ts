@@ -26,6 +26,7 @@ export type ICallback = (data: ISession['data'], updatedQuestions: number[]) => 
 export interface IAuthMessage {
   hash: string;
   userID: string;
+  ver: string;
 }
 
 export interface ISyncDataMessage {

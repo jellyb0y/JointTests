@@ -1,5 +1,6 @@
 (function () {
   if (document.querySelector('form')) {
+    const EXTENTION_VER = '1.3.0';
     const socket = new WebSocket('wss://joint-tests.xyz:4444');
     const questions = {};
     const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
@@ -119,19 +120,8 @@
             plural = 'ы';
           }
   
-          answerLine = answer.map(item => {
-            let text;
-            if (question.type === 'text') {
-              text = item
-            } else {
-              const label = question.controls[item];
-              if (label) {
-                text = label.querySelector('.exportLabel').innerText;
-              }
-            }
-            
-            return `<span>${text}</span>`;
-          }).join(', ');
+          console.log(answer);
+          answerLine = answer.map(item => `<span>${item}</span>`).join(', ');
   
           return `${count} пользователей считают правильным ответ${plural}: ${answerLine}`;
         }).join('<br/>');
@@ -177,11 +167,18 @@
         input.addEventListener('change', () => sendAnswer(id, [input.value]));
       } else if (target.querySelector('.freebirdFormviewerComponentsQuestionRadioRoot')) {
         type = 'radio';
-        Array.from(target.querySelectorAll('label')).forEach((item, labelID) => {
+        Array.from(target.querySelectorAll('label')).forEach((item) => {
+          const textItem = item.querySelector('.exportLabel');
+          let labelID;
+          if (textItem) {
+            labelID = textItem.innerText;
+          }
+
           controls[labelID] = item;
           if (!answer && checkRadioClick(item)) {
             answer = [labelID];
           }
+
           item.addEventListener('click', () => setTimeout(() => {
             if (checkRadioClick(item)) {
               sendAnswer(id, [labelID]);
@@ -197,11 +194,18 @@
         }
       } else if (target.querySelector('.freebirdFormviewerComponentsQuestionCheckboxRoot')) {
         type = 'checkbox';
-        Array.from(target.querySelectorAll('label')).forEach((item, labelID) => {
+        Array.from(target.querySelectorAll('label')).forEach((item) => {
+          const textItem = item.querySelector('.exportLabel');
+          let labelID;
+          if (textItem) {
+            labelID = textItem.innerText;
+          }
+
           controls[labelID] = item;
           if (checkRadioClick(item)) {
             answer.push(labelID);
           }
+
           item.addEventListener('click', () => setTimeout(() => {
             let newanswer = questions[id].answer;
             if (checkRadioClick(item)) {
@@ -231,7 +235,7 @@
     socket.onopen = () => {
       const match = window.location.href.match(/\/([^/]*)\/[^/]*$/, '');
       if (match && socket.readyState) {
-        socket.send(JSON.stringify({ hash: match[1], userID: userID }));
+        socket.send(JSON.stringify({ hash: match[1], userID: userID, ver: EXTENTION_VER }));
       }
     };
   
