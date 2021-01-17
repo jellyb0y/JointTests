@@ -43,6 +43,10 @@
 
     const onProgressButtonClick = (qID) => {
       const question = questions[qID];
+      if (!question || !question.target) {
+        return;
+      }
+
       const newState = !question.usersInProgress.includes(userID);
 
       if (newState) {
@@ -59,6 +63,10 @@
 
     const updateQuestionProgress = (qID) => {
       const question = questions[qID];
+      if (!question || !question.target) {
+        return;
+      }
+
       const usersInProgress = question.usersInProgress;
       const text = question.progressText;
       const progressButton = question.progressButton;
@@ -85,6 +93,10 @@
   
     const updateHints = (qID) => {
       const question = questions[qID];
+      if (!question || !question.target) {
+        return;
+      }
+
       const answers = question.otherAnswers;
       const target = question.target;
   
