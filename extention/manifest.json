@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "JointTests",
-  "version": "1.0.0",
+  "version": "1.2.1",
   "content_scripts": [
     {
       "matches": [
