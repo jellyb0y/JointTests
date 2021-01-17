@@ -3,7 +3,7 @@
     const socket = new WebSocket('wss://joint-tests.xyz:4444');
     const questions = {};
     const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
-    const userID = localStorage.getItem('userID');
+    const userID = localStorage.getItem('userIDHash');
 
     let queueToSend = {};
     let timeoutToSend;
@@ -110,8 +110,8 @@
   
       let isEmptyAnswers = true;
       const equalAnswers = {};
-      Object.entries(answers).forEach(([userID, answer]) => {
-        if (userID === localStorage.getItem('userID')) {
+      Object.entries(answers).forEach(([curUserID, answer]) => {
+        if (userID === curUserID) {
           answer.forEach(value => {
             let control;
             if (question.type === 'text') {
@@ -273,7 +273,7 @@
       const incomingData = JSON.parse(json);
       
       if (incomingData.userID) {
-        localStorage.setItem('userID', data.userID);
+        localStorage.setItem('userIDHash', incomingData.userID);
       } else if (incomingData.data) {
         Object.entries(incomingData.data).forEach(([qID, data]) => {
           questions[qID] = {

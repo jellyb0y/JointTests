@@ -41,9 +41,9 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
     countSessions = 0
   } = sessions[hash] || {};
 
-  if (countSessions > MAX_SESSIONS) {
+  /* if (countSessions > MAX_SESSIONS) {
     return;
-  }
+  } */
   
   if (!(hash in sessions)) {
     sessions[hash] = { countSessions, data, callbacks, questionsToDispatch };
