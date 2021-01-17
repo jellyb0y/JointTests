@@ -48,6 +48,9 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
     countConnections = 0
   } = session || {};
 
+  if (countSessions > MAX_SESSIONS - 1) {
+    return;
+  }
   
   if (!(hash in sessions)) {
     session = sessions[hash] = {
@@ -59,7 +62,7 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
     countSessions += 1;
   }
 
-  if (countSessions > MAX_SESSIONS - 1) {
+  if (countConnections > MAX_CONNECTIONS - 1) {
     return;
   }
 
@@ -80,10 +83,6 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
 
     callbacks[userID] = callback;
   };
-
-  if (countConnections > MAX_CONNECTIONS - 1) {
-    return;
-  }
 
   const updateData = ({ qID, answer, isActive }: IQuestionData): void => {
     if (!data[qID]) {
