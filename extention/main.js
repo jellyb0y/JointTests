@@ -5,32 +5,7 @@
     const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
     const userID = localStorage.getItem('userIDHash');
 
-    let queueToSend = {};
-    let timeoutToSend;
-    const sendMessage = (qID, data) => {
-      queueToSend[qID] = {
-        ...queueToSend[qID],
-        ...data
-      };
-
-      const task = () => {
-        if (socket.readyState) {
-          socket.send(JSON.stringify(queueToSend));
-          queueToSend = {};
-        }
-      };
-
-      if (!timeoutToSend) {
-        task();
-      } else {
-        clearTimeout(timeoutToSend);
-      }
-
-      timeoutToSend = setTimeout(() => {
-        timeoutToSend = null;
-        task();
-      }, 1000);
-    };
+    const sendMessage = (qID, data) => socket.send(JSON.stringify({ [qID]: data }));
   
     const sendAnswer = (qID, answer) => {
       questions[qID].answer = answer;
@@ -124,13 +99,15 @@
                 question.controls[value].click();
               }
             }
-          })
+          });
+
+          return;
         }
 
         if (!answer.length) {
           return;
         }
-  
+        
         answerString = JSON.stringify(answer.sort());
         if (!equalAnswers[answerString]) {
           equalAnswers[answerString] = 1;
@@ -227,8 +204,11 @@
             }        
           }, 100));
         });
-        target.querySelector('.appsMaterialWizButtonPaperbuttonLabel')
-          .addEventListener('click', () => sendAnswer(id, []));
+        
+        const deleteAll = target.querySelector('.appsMaterialWizButtonPaperbuttonLabel');
+        if (deleteAll) {
+          deleteAll.addEventListener('click', () => sendAnswer(id, []));
+        }
       } else if (target.querySelector('.freebirdFormviewerComponentsQuestionCheckboxRoot')) {
         type = 'checkbox';
         Array.from(target.querySelectorAll('label')).forEach((item, labelID) => {
@@ -263,7 +243,7 @@
     });
   
     socket.onopen = () => {
-      const hrefHash = btoa(window.location.href);
+      const hrefHash = window.location.href;
       if (socket.readyState) {
         socket.send(JSON.stringify({ hash: hrefHash, userID: userID }));
       }
@@ -284,6 +264,8 @@
           
           updateForm(incomingData.questionsToDispatch);
         });
+      } else if (incomingData.error) {
+        alert(`Произошла ошибка на сервере: ${incomingData.error}`);
       }
     };
 
