@@ -243,9 +243,9 @@
     });
   
     socket.onopen = () => {
-      const hrefHash = window.location.href.replace(/\/[^/]*$/, '');
-      if (socket.readyState) {
-        socket.send(JSON.stringify({ hash: hrefHash, userID: userID }));
+      const match = window.location.href.match(/\/([^/]*)\/[^/]*$/, '');
+      if (match && socket.readyState) {
+        socket.send(JSON.stringify({ hash: match[1], userID: userID }));
       }
     };
   
