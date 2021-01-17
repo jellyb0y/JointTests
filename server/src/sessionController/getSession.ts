@@ -34,35 +34,46 @@ export const dispatchCallbacks = ({
   
 
 export const getSession = (hash: string, userID: string): T.ISession | undefined => {
+  let session: T.IStorageItem = sessions[hash];
+
   const {
     data = {},
     callbacks = {},
     questionsToDispatch = [],
     countSessions = 0
-  } = sessions[hash] || {};
+  } = session || {};
 
-  /* if (countSessions > MAX_SESSIONS) {
-    return;
-  } */
   
   if (!(hash in sessions)) {
-    sessions[hash] = { countSessions, data, callbacks, questionsToDispatch };
+    session = sessions[hash] = {
+      countSessions,
+      data,
+      callbacks,
+      questionsToDispatch
+    };
   }
 
-  const callCallbacksDispatcher = () => dispatchCallbacks({
-    callbacks,
-    userID,
-    data,
-    questionsToDispatch
-  })
+  const callCallbacksDispatcher = () => {
+    dispatchCallbacks({
+      callbacks,
+      userID,
+      data,
+      questionsToDispatch
+    });
+    session.questionsToDispatch = [];
+  };
 
   const createOnUpdate = (callback): void => {
     if (!(userID in callbacks)) {
-      sessions[hash].countSessions += 1;
+      session.countSessions += 1;
     }
 
     callbacks[userID] = callback;
   };
+
+  if (countSessions > MAX_SESSIONS - 1) {
+    return;
+  }
 
   const updateData = ({ qID, answer, isActive }: IQuestionData): void => {
     if (!data[qID]) {
@@ -72,7 +83,9 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
       };
     }
 
-    questionsToDispatch.push(qID);
+    if (!questionsToDispatch.includes(qID)) {
+      questionsToDispatch.push(qID);
+    }
     
     if (answer !== undefined) {
       data[qID].answers[userID] = answer;
@@ -92,6 +105,7 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
   };
   
   return {
+    id: Math.floor(Math.random() * Date.now()),
     data,
     createOnUpdate,
     updateData

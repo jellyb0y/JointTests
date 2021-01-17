@@ -6,7 +6,7 @@ import { WSS_PORT, SSL_KEY_PATH, SSL_CERT_PATH } from '@constants';
 import { IIncomingData, ISyncDataMessage } from '@types';
 import { ISession } from './sessionController/sessionController.types';
 
-var options = {
+const options = {
   key: fs.readFileSync(SSL_KEY_PATH),
   cert: fs.readFileSync(SSL_CERT_PATH)
 };
@@ -18,6 +18,7 @@ const wss = new WebSocket.Server({
 
 wss.on('connection', (ws: WebSocket) =>
   sessionController(ws).then((session: ISession) => {
+    console.log(session);
     ws.send(JSON.stringify({ data: session.data } as ISyncDataMessage));
 
     ws.on('message', (json: string) => {
@@ -28,5 +29,10 @@ wss.on('connection', (ws: WebSocket) =>
     session.createOnUpdate((data, questionsToDispatch) =>
       ws.send(JSON.stringify({ data, questionsToDispatch }))
     );
-  }).catch(() => ws.close())
+  }).catch(() => {
+    ws.send(JSON.stringify({ error: 'could not create session' }));
+    ws.close()
+  })
 );
+
+wss.on

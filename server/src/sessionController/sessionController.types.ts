@@ -1,12 +1,15 @@
 import { IUserList, ICallback, IDataItem, IQuestionData } from '@types';
 
 export interface IStorage {
-  [key: string]: {
-    countSessions: number;
-  } & Pick<IDispatcherData, 'data' | 'callbacks' | 'questionsToDispatch'>;  
+  [key: string]: IStorageItem;
+}
+
+export interface IStorageItem extends Pick<IDispatcherData, 'data' | 'callbacks' | 'questionsToDispatch'> {
+  countSessions: number;
 }
 
 export interface ISession {
+  id: number;
   data: {
     [qID: number]: IDataItem;
   };
