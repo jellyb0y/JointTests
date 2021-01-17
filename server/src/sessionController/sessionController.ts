@@ -7,7 +7,7 @@ import * as T from './sessionController.types';
 
 export const sessions: T.IStorage = {};
 
-let userIndex = 0;
+let userIndex = 1;
 
 export const sessionController = (ws: WebSocket): Promise<T.ISession> =>
   new Promise((resolve, reject) => {
@@ -17,7 +17,7 @@ export const sessionController = (ws: WebSocket): Promise<T.ISession> =>
       let { hash, userID }: IAuthMessage = JSON.parse(json);
 
       if (!userID) { 
-        userID = md5(`${SERVER_SECRET}:${userIndex++}`);
+        userID = md5(`${SERVER_SECRET}:${userIndex}:${Math.random() * Date.now()}`);
         ws.send(JSON.stringify({ userID }));
       }
 
