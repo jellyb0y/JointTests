@@ -1,6 +1,6 @@
 (function () {
   if (document.querySelector('form')) {
-    const socket = new WebSocket('wss://joint-tests.xyz:8080');
+    const socket = new WebSocket('wss://joint-tests.xyz:4444');
     const questions = {};
     const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
     const userID = localStorage.getItem('userID');
