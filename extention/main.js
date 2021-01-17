@@ -243,7 +243,7 @@
     });
   
     socket.onopen = () => {
-      const hrefHash = window.location.href;
+      const hrefHash = window.location.href.replace(/\/[^/]*$/, '');
       if (socket.readyState) {
         socket.send(JSON.stringify({ hash: hrefHash, userID: userID }));
       }
