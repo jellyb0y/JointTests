@@ -6,22 +6,30 @@
     const userID = localStorage.getItem('userID');
 
     let queueToSend = {};
-    let isReadyToSend = true;
+    let timeoutToSend;
     const sendMessage = (qID, data) => {
       queueToSend[qID] = {
         ...queueToSend[qID],
         ...data
       };
 
-      if (isReadyToSend) {
+      const task = () => {
         if (socket.readyState) {
           socket.send(JSON.stringify(queueToSend));
           queueToSend = {};
         }
-        isReadyToSend = false;
+      };
+
+      if (!timeoutToSend) {
+        task();
+      } else {
+        clearTimeout(timeoutToSend);
       }
 
-      setTimeout(() => isReadyToSend = true, 1000);
+      timeoutToSend = setTimeout(() => {
+        timeoutToSend = null;
+        task();
+      }, 1000);
     };
   
     const sendAnswer = (qID, answer) => {
