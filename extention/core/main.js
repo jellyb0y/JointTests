@@ -119,8 +119,7 @@
           if (answer.length > 1) {
             plural = 'ы';
           }
-  
-          console.log(answer);
+
           answerLine = answer.map(item => `<span>${item}</span>`).join(', ');
   
           return `${count} пользователей считают правильным ответ${plural}: ${answerLine}`;
