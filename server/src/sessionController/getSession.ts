@@ -4,6 +4,7 @@ import { sessions } from './sessionController';
 import * as T from './sessionController.types';
 
 let timeoutToSend: NodeJS.Timeout;
+let isPending: boolean;
 
 export const dispatchCallbacks = ({
   callbacks,
@@ -19,19 +20,19 @@ export const dispatchCallbacks = ({
   
       callback(data, questionsToDispatch);
     });
+
+    timeoutToSend = setTimeout(() => {
+      timeoutToSend = null;
+      if (isPending) {
+        task();
+      }
+    }, CALLBACK_DEBOUNCE_TIME);
   };
 
   if (!timeoutToSend) {
     task();
-    timeoutToSend = setTimeout(() => {
-      timeoutToSend = null;
-    }, CALLBACK_DEBOUNCE_TIME);
   } else {
-    clearTimeout(timeoutToSend);
-    timeoutToSend = setTimeout(() => {
-      timeoutToSend = null;
-      task();
-    }, CALLBACK_DEBOUNCE_TIME);
+    isPending = true;
   }
 }  
 
