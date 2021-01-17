@@ -61,6 +61,7 @@ export const getSession = (hash: string, userID: string): T.ISession | undefined
       questionsToDispatch
     });
     session.questionsToDispatch = [];
+    console.log(session);
   };
 
   const createOnUpdate = (callback): void => {

@@ -223,7 +223,7 @@
                 newanswer.push(labelID);
               }
             } else {
-              newanswer = newanswer.filter(value => value && value !== labelID);
+              newanswer = newanswer.filter(value => ![null, undefined, labelID].includes(value));
             }
             sendAnswer(id, newanswer);
           }, 100));
