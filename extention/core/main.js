@@ -255,7 +255,7 @@
           updateForm(incomingData.questionsToDispatch);
         });
       } else if (incomingData.error) {
-        alert(`Произошла ошибка на сервере: ${incomingData.error}`);
+        alert(`Произошла ошибка: ${incomingData.error}`);
       }
     };
 
