@@ -1,7 +1,7 @@
 (function () {
   if (document.querySelector('form')) {
-    const EXTENTION_VER = '1.3.0';
-    const socket = new WebSocket('wss://joint-tests.xyz:4444');
+    const EXTENTION_VER = '1.3.1';
+    const socket = new WebSocket('wss://bruh-momento.club:4444');
     const questions = {};
     const containers = Array.from(document.getElementsByClassName('freebirdFormviewerViewNumberedItemContainer'));
     const userID = localStorage.getItem('userIDHash');
